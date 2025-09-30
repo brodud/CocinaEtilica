@@ -11,30 +11,34 @@ if(isset($_POST["autenticar"])){
     $redireccion = "";
     $nombreUsuario = "";
     
-    // autenticar como Admin
+    // Autenticar como Admin
     $admin = new Admin("", "", "", $correo, $clave);
     if($admin -> autenticar()){
         $_SESSION["id"] = $admin -> getId();
         $_SESSION["rol"] = "admin";
         
-        // Consultar datos del Admin 
         $admin->consultar(); 
         $nombreUsuario = $admin->getNombre() . " " . $admin->getApellido();
         $redireccion = 'sesionAdmin.php';
     }
-	if(empty($redireccion)){
-	$cliente = new Cliente("", "", "", $correo, $clave);
-	if($clienteParaAuth -> autenticar()){ 
-            $_SESSION["id"] = $clienteParaAuth -> getId();
+    
+    // Si no es Admin, intentar autenticar como Cliente
+    if(empty($redireccion)){
+        $cliente = new Cliente("", "", "", $correo, $clave);
+
+        if($cliente -> autenticar()){ 
+            $_SESSION["id"] = $cliente -> getId();
             $_SESSION["rol"] = "cliente";
-			$cliente = new Cliente($_SESSION["id"]); 
-			$cliente->consultarId(); 
-			$nombreUsuario = $cliente->getNombre() . " " . $cliente->getApellido();
-			$redireccion = 'sesionCliente.php';
-	}
-	}
-	if (!empty($redireccion)) {
-        // Establecer el nombre de usuario 
+            
+            $cliente->consultarId(); 
+            
+            $nombreUsuario = $cliente->getNombre() . " " . $cliente->getApellido();
+            $redireccion = 'sesionCliente.php';
+        }
+    }
+    
+    // Redirección final
+    if (!empty($redireccion)) {
         $_SESSION["nombre_usuario"] = $nombreUsuario;
         header('Location: ' . $redireccion);
         exit();
@@ -43,8 +47,9 @@ if(isset($_POST["autenticar"])){
         $error = "Correo o clave incorrectos.";
     }
 }
-
 ?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>

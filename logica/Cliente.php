@@ -26,6 +26,7 @@ class Cliente extends Persona {
         $this -> fechaNacimiento = $fechaNacimiento;
     }
     
+
     public function registrar(){
         $conexion = new Conexion();
         $conexion -> abrir();
@@ -46,6 +47,22 @@ class Cliente extends Persona {
         }
         $conexion -> cerrar();
         return $clientes;
+    }
+
+    public function autenticar(){
+        $conexion = new Conexion();
+        $conexion -> abrir();
+        // Usamos el DAO para verificar credenciales y obtener el ID
+        $clienteDAO = new ClienteDAO("", "", "", "", $this -> correo, $this -> clave);
+        $conexion -> ejecutar($clienteDAO -> autenticar()); // Necesitamos este método en ClienteDAO
+        $tupla = $conexion -> registro();
+        $conexion -> cerrar();
+        if($tupla != null){
+            $this -> id = $tupla[0];
+            return true;
+        }else{
+            return false;
+        }
     }
     public function consultarId(){
         $conexion = new Conexion();
